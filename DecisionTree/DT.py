@@ -2,6 +2,7 @@ from utils.Model import Model
 from enum import Enum
 
 from DecisionTree.DT_node import DT_node
+from DecisionTree.DT_leaf_node import DT_leaf_node
 from DecisionTree.DT_branch import DT_branch
 import numpy as np
 import sys
@@ -22,15 +23,17 @@ class DT(Model):
                                     [attr for attr in range(0, len(X[0]))], #Attributes
                                     None)                                   #Parent_examples
     
+    #Implementation of figure 19.5, which is the decision tree learning algorithm.
     def learn_tree(self, examples, attributes, parent_examples):
-        
+        print(len(examples[0]))
+
         #If X/Y are empty
         if (len(examples[0]) == 0 or len(examples[1]) == 0):
             print('Plurality parent examples')
 
-        #If Y avaliable have the same classifiction
+        #If Y vector passed in all have the same classifiction
         elif len(np.unique(examples[1])) == 1:
-            print('Empty current examples')
+            return DT_leaf_node(examples[1][0])
         
         #If there are no more attributes to process
         elif len(attributes) == 0:
@@ -51,7 +54,7 @@ class DT(Model):
 
                 #Removing the selected attribute 'A'
                 subset_attributes = attributes.copy()
-                subset_attributes.pop(A)
+                subset_attributes.remove(A)
 
                 #Recursively build the subtree
                 sub_tree = self.learn_tree((subset_X, subset_Y), subset_attributes, examples)
@@ -60,6 +63,8 @@ class DT(Model):
                 new_branch = DT_branch(A, value)
                 new_branch.child_node = sub_tree
                 new_tree.branches.add(new_branch)
+            
+            return new_tree
 
 
     def importance(self, examples, attributes):

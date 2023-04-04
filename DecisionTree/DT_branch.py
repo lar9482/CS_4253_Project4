@@ -5,7 +5,7 @@ class DT_branch(DT_node):
         self.value = value
         self.child_node = None
         
-        super().__init(attribute)
+        super().__init__(attribute)
 
     def __lt__(self, other):
         return self.value <= other.value
