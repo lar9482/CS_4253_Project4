@@ -3,12 +3,12 @@ from utils.shuffle import shuffle
 from DecisionTree.DT import DT, Info_Gain
 import numpy as np
 def main():
-    (X, Y) = load_optdigits_data(1000)
+    (X, Y) = load_optdigits_data(2500)
     (X, Y) = shuffle(X, Y)
 
     tree = DT(Info_Gain.Gini)
-    tree.fit(X, Y)
-
+    # tree.fit(X, Y)
+    print(tree.plurality_value((X, Y)))
     
     print()
 

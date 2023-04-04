@@ -4,6 +4,7 @@ from enum import Enum
 from DecisionTree.DT_node import DT_node
 from DecisionTree.DT_leaf_node import DT_leaf_node
 from DecisionTree.DT_branch import DT_branch
+
 import numpy as np
 import sys
 
@@ -18,26 +19,25 @@ class DT(Model):
         self.tree = None
 
     def fit(self, X, Y):
-
-        self.tree = self.learn_tree((X, Y),                                 #Examples
-                                    [attr for attr in range(0, len(X[0]))], #Attributes
-                                    None)                                   #Parent_examples
+        self.tree = self.learn_tree((X, Y),                                     #Examples
+                                    [attr for attr in range(0, len(X[0]))],     #Attributes
+                                    None)                                       #Parent_examples
     
     #Implementation of figure 19.5, which is the decision tree learning algorithm.
     def learn_tree(self, examples, attributes, parent_examples):
         print(len(examples[0]))
 
-        #If X/Y are empty
+        #If the examples(X vector/Y vector) are empty
         if (len(examples[0]) == 0 or len(examples[1]) == 0):
-            print('Plurality parent examples')
+            return DT_leaf_node(self.plurality_value(parent_examples))
 
-        #If Y vector passed in all have the same classifiction
+        #If the Y vector passed in all have the same classifiction
         elif len(np.unique(examples[1])) == 1:
             return DT_leaf_node(examples[1][0])
         
         #If there are no more attributes to process
         elif len(attributes) == 0:
-            print('Plurality current examples')
+            return DT_leaf_node(self.plurality_value(examples))
 
         else:
             A = self.importance(examples, attributes)
@@ -65,8 +65,12 @@ class DT(Model):
                 new_tree.branches.add(new_branch)
             
             return new_tree
-
-
+    
+    #Gets the most common classification among the examples
+    def plurality_value(self, examples):
+        unique, indices = np.unique(examples[1], return_inverse=True)
+        return unique[np.argmax(np.bincount(indices))]
+        
     def importance(self, examples, attributes):
 
         #Keeping track of the attribute that maximizes the information that's gained
@@ -151,7 +155,3 @@ class DT(Model):
 
         else:
             raise Exception('Impurity: Invalid information gain request made!')
-
-
-    def plurality_value(self, examples):
-        pass
