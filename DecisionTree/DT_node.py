@@ -3,7 +3,6 @@ class DT_node:
         self.attribute_index = attribute_index
         self.attribute_value = attribute_value
 
-        #
         self.output = -1
 
         self.branches = []

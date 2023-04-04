@@ -7,9 +7,9 @@ def main():
     (X, Y) = shuffle(X, Y)
 
     tree = DT(Info_Gain.Gini)
-    # tree.fit(X, Y)
-    test = tree.impurity((X, Y))
-    print(test)
+    tree.fit(X, Y)
+    # test = tree.impurity((X, Y))
+    print()
 
 
 if __name__ == "__main__":
