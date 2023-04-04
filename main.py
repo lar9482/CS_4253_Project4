@@ -3,7 +3,7 @@ from utils.shuffle import shuffle
 from DecisionTree.DT import DT, Info_Gain
 import numpy as np
 def main():
-    (X, Y) = load_spambase_data(5000)
+    (X, Y) = load_optdigits_data(100)
     (X, Y) = shuffle(X, Y)
 
     tree = DT(Info_Gain.Gini)

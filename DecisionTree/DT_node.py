@@ -1,8 +1,8 @@
 class DT_node:
-    def __init__(self, attribute_index, attribute_value):
-        self.attribute_index = attribute_index
-        self.attribute_value = attribute_value
+    def __init__(self, attribute):
 
-        self.output = -1
-        
-        self.branches = []
+        #The attribute that's being tested.
+        self.attribute = attribute
+
+        #References to child nodes.
+        self.child_nodes = []

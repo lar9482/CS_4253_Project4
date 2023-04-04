@@ -38,6 +38,24 @@ class DT(Model):
 
         else:
             A = self.importance(examples, attributes)
+            new_tree = DT_node(A)
+            attribute_values = np.unique(examples[0][:, A])
+
+            for value in attribute_values:
+                #Getting the indices(or rows in the examples), where the selected attribute matches the current attribute value test.
+                subset_examples_indices = np.where(examples[0][:, A] == value)
+
+                #Use the indices to get the X/Y vectors that match 'attr_value' at the specified 'attribute'.
+                subset_X = [examples[0][indice, :] for indice in subset_examples_indices][0]
+                subset_Y = [examples[1][indice] for indice in subset_examples_indices][0]
+
+                #Removing the selected attribute 'A'
+                subset_attributes = attributes.copy()
+                subset_attributes.pop(A)
+
+                #Recursively build the subtree
+                sub_tree = self.learn_tree((subset_X, subset_Y), subset_attributes, examples)
+
 
     def importance(self, examples, attributes):
 
