@@ -1,5 +1,6 @@
 from utils.Model import Model
 from enum import Enum
+from operator import attrgetter
 
 from DecisionTree.DT_node import DT_node
 from DecisionTree.DT_leaf_node import DT_leaf_node
@@ -155,3 +156,31 @@ class DT(Model):
 
         else:
             raise Exception('Impurity: Invalid information gain request made!')
+        
+    def predict(self, X):
+        prediction = np.empty((len(X), 1))
+        
+        for i in range(0, len(prediction)):
+
+            #Starting at the root of the tree
+            curr_node = self.tree
+
+            #Traverse down to a leaf node
+            while (not curr_node.__class__.__name__ == DT_leaf_node.__name__):
+
+                #Testing every branch in the current node until its not necessary
+                for branch in curr_node.branches:
+
+                    #Once the tracked attribute value matches the attribute value in X,
+                    #Go down the tree
+                    if (X[i][curr_node.attribute] <= branch.value):
+                        curr_node = branch.child_node
+                        break
+            
+            #Once a leaf node has been found, log it in 'prediction'
+            prediction[i, 0] = curr_node.classification[0]
+        
+        return prediction
+        
+                    
+

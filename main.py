@@ -7,7 +7,8 @@ def main():
     (X, Y) = shuffle(X, Y)
 
     tree = DT(Info_Gain.Gini)
-    # tree.fit(X, Y)
+    tree.fit(X, Y)
+    test = tree.predict(X)
     print(tree.plurality_value((X, Y)))
     
     print()
