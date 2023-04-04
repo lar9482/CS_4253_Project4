@@ -2,7 +2,7 @@ from utils.Model import Model
 from enum import Enum
 
 from DecisionTree.DT_node import DT_node
-
+from DecisionTree.DT_branch import DT_branch
 import numpy as np
 import sys
 
@@ -55,6 +55,11 @@ class DT(Model):
 
                 #Recursively build the subtree
                 sub_tree = self.learn_tree((subset_X, subset_Y), subset_attributes, examples)
+
+                #Add a branch to 'new_tree' with label (A = v) and the 'sub_tree'
+                new_branch = DT_branch(A, value)
+                new_branch.child_node = sub_tree
+                new_tree.branches.add(new_branch)
 
 
     def importance(self, examples, attributes):
