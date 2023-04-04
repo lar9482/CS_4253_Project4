@@ -4,5 +4,5 @@ class DT_node:
         self.attribute_value = attribute_value
 
         self.output = -1
-
+        
         self.branches = []

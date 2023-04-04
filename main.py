@@ -8,7 +8,6 @@ def main():
 
     tree = DT(Info_Gain.Gini)
     tree.fit(X, Y)
-    # test = tree.impurity((X, Y))
     print()
 
 

@@ -17,12 +17,12 @@ class DT(Model):
         self.tree = None
 
     def fit(self, X, Y):
-        self.tree = self.learn_tree((X, Y), 
-                                    [attr for attr in range(0, len(X[0]))], 
-                                    None,
-                                    self.tree)
+
+        self.tree = self.learn_tree((X, Y),                                 #Examples
+                                    [attr for attr in range(0, len(X[0]))], #Attributes
+                                    None)                                   #Parent_examples
     
-    def learn_tree(self, examples, attributes, parent_examples, curr_branch):
+    def learn_tree(self, examples, attributes, parent_examples):
         
         #If X/Y are empty
         if (len(examples[0]) == 0 or len(examples[1]) == 0):
@@ -40,9 +40,12 @@ class DT(Model):
             A = self.importance(examples, attributes)
 
     def importance(self, examples, attributes):
+
+        #Keeping track of the attribute that maximizes the information that's gained
         argmax_attribute = attributes[0]
         max_info_gain = -sys.maxsize-1
 
+        #Given all the current attributes, find the one that maximizes info_gain
         for attribute in attributes:
             curr_info_gain = self.information_gain(examples, attribute)
             if (curr_info_gain > max_info_gain):
@@ -59,6 +62,8 @@ class DT(Model):
         #Impurity of the inputted examples
         parent_impurity = self.impurity(examples)
 
+        #Calculating the remainer
+        #(I.e sum of node impurities for every possible split at the inputted attribute)
         remainder = 0
         for attr_value in attribute_values:
 
@@ -83,7 +88,11 @@ class DT(Model):
 
         #Initially calculate all fractions of points that belong to each class
         for class_name in all_classes:
+
+            #Get number of examples classified under 'class_name'
             points_belonging_to_class = len(np.where(examples[1] == class_name)[0])
+
+            #Getting the number of examples
             all_points = len(examples[1])
 
             point_class_fract = (points_belonging_to_class / all_points)
@@ -116,5 +125,5 @@ class DT(Model):
             raise Exception('Impurity: Invalid information gain request made!')
 
 
-    def plurality_value(self, Y):
+    def plurality_value(self, examples):
         pass
