@@ -1,6 +1,5 @@
 from utils.Model import Model
 from enum import Enum
-from operator import attrgetter
 
 from DecisionTree.DT_node import DT_node
 from DecisionTree.DT_leaf_node import DT_leaf_node
