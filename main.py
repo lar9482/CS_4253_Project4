@@ -15,9 +15,9 @@ def test_DT():
     print()
 
 def main():
-    (X, Y) = load_spambase_data(100)
+    (X, Y) = load_spambase_data(2500)
     (X, Y) = shuffle(X, Y)
-    network = Network(len(X[0]), [20, 10], len(Y[0]))
+    network = Network(len(X[0]), [20, 10], len(np.unique(Y)))
     network.fit(X, Y)
     print()
     # tree.fit(X, Y)

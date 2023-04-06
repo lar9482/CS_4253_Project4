@@ -20,16 +20,18 @@ class Network(Model):
         #Derivative of the activation function
         self.d_activate = d_activate
 
-        #The input layer
-        self.input_layer = np.empty((input_layer_size, 1))
+        #All of the layers in the neural network
+        self.deep_layers = []
 
-        #The output layer
-        self.output_layer = np.empty((output_layer_size, 1))
+        #The input layer
+        self.deep_layers.append(np.empty((input_layer_size, 1)))
 
         #The deep layers
-        self.deep_layers = []
         for deep_layer_size in deep_layer_sizes:
             self.deep_layers.append(np.empty((deep_layer_size, 1)))
+
+        #The output layers
+        self.deep_layers.append(np.empty((output_layer_size, 1)))
 
         #The weights between each layer
         self.weights = []
@@ -49,10 +51,17 @@ class Network(Model):
             for i in range(0, len(self.weights[weight_layer])):
                 for j in range(0, len(self.weights[weight_layer][0])):
                     self.weights[weight_layer][i, j] = random.uniform(-1, 1)
+                    
+    def _feed_in_input(self, X):
+        X.transpose()
+        pass
 
     def fit(self, X, Y):
         self.__initialize_weights()
-        print()
+
+        # for example in range(0, len(X)):
+
+        # print()
         
 
 
