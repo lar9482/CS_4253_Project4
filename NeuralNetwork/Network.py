@@ -1,11 +1,13 @@
 from utils.Model import Model
 import numpy as np
+import random
 
 class Network(Model):
     def __init__(self, input_layer_size, #Integer
                        deep_layer_sizes, #List of integers
                        output_layer_size, #Integer
-                       activate = None):
+                       activate = None,
+                       d_activate = None):
         
         #The layer sizes for the neural network
         self.input_layer_size = input_layer_size
@@ -14,6 +16,9 @@ class Network(Model):
 
         #The activation function
         self.activate = activate
+
+        #Derivative of the activation function
+        self.d_activate = d_activate
 
         #The input layer
         self.input_layer = np.empty((input_layer_size, 1))
@@ -26,7 +31,7 @@ class Network(Model):
         for deep_layer_size in deep_layer_sizes:
             self.deep_layers.append(np.empty((deep_layer_size, 1)))
 
-        #The weights
+        #The weights between each layer
         self.weights = []
         for i in range(0, len(deep_layer_sizes)):
 
@@ -38,6 +43,16 @@ class Network(Model):
 
         #Placing weights inbetween the last deep layer and the output layer
         self.weights.append(np.empty((deep_layer_sizes[len(deep_layer_sizes) - 1], output_layer_size)))
+
+    def __initialize_weights(self):
+        for weight_layer in range(0, len(self.weights)):
+            for i in range(0, len(self.weights[weight_layer])):
+                for j in range(0, len(self.weights[weight_layer][0])):
+                    self.weights[weight_layer][i, j] = random.uniform(-1, 1)
+
+    def fit(self, X, Y):
+        self.__initialize_weights()
+        print()
         
 
 
