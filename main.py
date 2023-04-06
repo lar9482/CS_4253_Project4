@@ -5,7 +5,7 @@ import numpy as np
 from utils.N_Fold import N_Fold
 
 def main():
-    (X, Y) = load_spambase_data(5000)
+    (X, Y) = load_spambase_data(2000)
     (X, Y) = shuffle(X, Y)
 
     tree = DT(Info_Gain.Gini)

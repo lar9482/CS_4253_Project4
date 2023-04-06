@@ -19,17 +19,15 @@ class DT(Model):
         self.info_gain = info_gain
         self.tree = None
 
-    def fit(self, X, Y):
-        self.tree = self.learn_tree((X, Y),                                     #Examples
-                                    [attr for attr in range(0, len(X[0]))],     #Attributes
-                                    None)                                       #Parent_examples
-    
+    ##################################################################################
+    #Decision tree specific methods
+
     #Implementation of figure 19.5, which is the decision tree learning algorithm.
-    def learn_tree(self, examples, attributes, parent_examples):
+    def __learn_tree(self, examples, attributes, parent_examples):
 
         #If the examples(X vector/Y vector) are empty
         if (len(examples[0]) == 0 or len(examples[1]) == 0):
-            return DT_leaf_node(self.plurality_value(parent_examples))
+            return DT_leaf_node(self.__plurality_value(parent_examples))
 
         #If the Y vector passed in all have the same classifiction
         elif len(np.unique(examples[1])) == 1:
@@ -37,10 +35,10 @@ class DT(Model):
         
         #If there are no more attributes to process
         elif len(attributes) == 0:
-            return DT_leaf_node(self.plurality_value(examples))
+            return DT_leaf_node(self.__plurality_value(examples))
 
         else:
-            A = self.importance(examples, attributes)
+            A = self.__importance(examples, attributes)
             new_tree = DT_node(A)
             attribute_values = np.unique(examples[0][:, A])
 
@@ -57,7 +55,7 @@ class DT(Model):
                 subset_attributes.remove(A)
 
                 #Recursively build the subtree
-                sub_tree = self.learn_tree((subset_X, subset_Y), subset_attributes, examples)
+                sub_tree = self.__learn_tree((subset_X, subset_Y), subset_attributes, examples)
 
                 #Add a branch to 'new_tree' with label (A = v) and the 'sub_tree'
                 new_branch = DT_branch(A, value)
@@ -67,11 +65,11 @@ class DT(Model):
             return new_tree
     
     #Gets the most common classification among the examples
-    def plurality_value(self, examples):
+    def __plurality_value(self, examples):
         unique, indices = np.unique(examples[1], return_inverse=True)
         return unique[np.argmax(np.bincount(indices))]
         
-    def importance(self, examples, attributes):
+    def __importance(self, examples, attributes):
 
         #Keeping track of the attribute that maximizes the information that's gained
         argmax_attribute = attributes[0]
@@ -79,20 +77,20 @@ class DT(Model):
 
         #Given all the current attributes, find the one that maximizes info_gain
         for attribute in attributes:
-            curr_info_gain = self.information_gain(examples, attribute)
+            curr_info_gain = self.__information_gain(examples, attribute)
             if (curr_info_gain > max_info_gain):
                 max_info_gain = curr_info_gain
                 argmax_attribute = attribute
     
         return argmax_attribute
 
-    def information_gain(self, examples, attribute):
+    def __information_gain(self, examples, attribute):
 
         #Get all possible attribute values from the 'examples' dataset for the given attribute.
         attribute_values = np.unique(examples[0][:, attribute])
 
         #Impurity of the inputted examples
-        parent_impurity = self.impurity(examples)
+        parent_impurity = self.__impurity(examples)
 
         #Calculating the remainer
         #(I.e sum of node impurities for every possible split at the inputted attribute)
@@ -106,11 +104,11 @@ class DT(Model):
             subset_X = [examples[0][i, :] for i in subset_indices][0]
             subset_Y = [examples[1][i] for i in subset_indices][0]
 
-            remainder += (len(subset_X)/len(examples))*self.impurity((subset_X, subset_Y))
+            remainder += (len(subset_X)/len(examples))*self.__impurity((subset_X, subset_Y))
         
         return parent_impurity - remainder
 
-    def impurity(self, examples):
+    def __impurity(self, examples):
 
         #Extracting all possible class types from the examples
         all_classes = np.unique(examples[1])
@@ -155,6 +153,15 @@ class DT(Model):
 
         else:
             raise Exception('Impurity: Invalid information gain request made!')
+    
+
+    #################################################################################################
+    #Models methods.
+
+    def fit(self, X, Y):
+        self.tree = self.__learn_tree((X, Y),                                     #Examples
+                                    [attr for attr in range(0, len(X[0]))],     #Attributes
+                                    None)                                       #Parent_examples
         
     def predict(self, X):
         prediction = np.empty((len(X), 1))
