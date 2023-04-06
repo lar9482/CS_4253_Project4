@@ -10,12 +10,12 @@ import numpy as np
 import sys
 
 class Info_Gain(Enum):
-    Mis_classify = 0
+    Misclassify = 0
     Entropy = 1
     Gini = 2
 
 class DT(Model):
-    def __init__(self, info_gain = Info_Gain.Mis_classify):
+    def __init__(self, info_gain = Info_Gain.Misclassify):
         self.info_gain = info_gain
         self.tree = None
 
@@ -26,7 +26,6 @@ class DT(Model):
     
     #Implementation of figure 19.5, which is the decision tree learning algorithm.
     def learn_tree(self, examples, attributes, parent_examples):
-        print(len(examples[0]))
 
         #If the examples(X vector/Y vector) are empty
         if (len(examples[0]) == 0 or len(examples[1]) == 0):
@@ -101,13 +100,13 @@ class DT(Model):
         for attr_value in attribute_values:
 
             #Getting the indices(or rows in the examples), where the selected attribute matches the current attribute value test.
-            subset_examples_indices = np.where(examples[0][:, attribute] == attr_value)
+            subset_indices = np.where(examples[0][:, attribute] == attr_value)
 
             #Use the indices to get the X/Y vectors that match 'attr_value' at the specified 'attribute'.
-            subset_examples_X = [examples[0][indice, :] for indice in subset_examples_indices][0]
-            subset_examples_Y = [examples[1][indice] for indice in subset_examples_indices][0]
+            subset_X = [examples[0][i, :] for i in subset_indices][0]
+            subset_Y = [examples[1][i] for i in subset_indices][0]
 
-            remainder += (len(subset_examples_X)/len(examples))*self.impurity((subset_examples_X, subset_examples_Y))
+            remainder += (len(subset_X)/len(examples))*self.impurity((subset_X, subset_Y))
         
         return parent_impurity - remainder
 
@@ -134,7 +133,7 @@ class DT(Model):
         #SOURCE: Slide 16 from 'SupervisedLearningDecisionTree.pptx'
 
         #For misclassification, get the maximum point_class fraction and subtract it from 1
-        if (self.info_gain == Info_Gain.Mis_classify):
+        if (self.info_gain == Info_Gain.Misclassify):
             max_pointclass_fracs = max(all_point_class_fracts)
             return 1 - max_pointclass_fracs
         
@@ -159,28 +158,47 @@ class DT(Model):
         
     def predict(self, X):
         prediction = np.empty((len(X), 1))
-        
-        for i in range(0, len(prediction)):
 
+        for vector in range(0, len(prediction)):
             #Starting at the root of the tree
             curr_node = self.tree
 
             #Traverse down to a leaf node
             while (not curr_node.__class__.__name__ == DT_leaf_node.__name__):
 
+                #Case where the attribute value is greater than all of the branches.
+                if (X[vector][curr_node.attribute] > curr_node.branches[len(curr_node.branches)-1].value):
+
+                    #Go down the last branch
+                    curr_node = curr_node.branches[len(curr_node.branches)-1].child_node
+                    continue
+
+                #Case where the current attribute is less than all of the branches
+                elif(X[vector][curr_node.attribute] < curr_node.branches[0].value):
+
+                    #Go down the first branch
+                    curr_node = curr_node.branches[0].child_node
+                    continue
+
                 #Testing every branch in the current node until its not necessary
                 for branch in curr_node.branches:
 
                     #Once the tracked attribute value matches the attribute value in X,
                     #Go down the tree
-                    if (X[i][curr_node.attribute] <= branch.value):
+                    if (X[vector][curr_node.attribute] <= branch.value):
                         curr_node = branch.child_node
                         break
             
             #Once a leaf node has been found, log it in 'prediction'
-            prediction[i, 0] = curr_node.classification[0]
+            prediction[vector, 0] = curr_node.classification
         
         return prediction
-        
-                    
+    
+    def eval(self, X, Y):
+        actual_Y = self.predict(X)
+        correct_guesses = 0
+        for class_id in range(0, len(Y)): 
+            if (Y[class_id][0] == actual_Y[class_id][0]):
+                correct_guesses += 1
 
+        return correct_guesses / len(Y)

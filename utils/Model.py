@@ -3,13 +3,13 @@ from abc import ABC, abstractmethod
 class Model:
     
     @abstractmethod
-    def fit(X, Y):
+    def fit(self, X, Y):
         pass
     
     @abstractmethod
-    def predict(X):
+    def predict(self, X):
         pass
 
     @abstractmethod
-    def eval(X, Y):
+    def eval(self, X, Y):
         pass

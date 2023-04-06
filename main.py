@@ -2,17 +2,17 @@ from utils.file_io import load_EMG_data, load_optdigits_data, load_spambase_data
 from utils.shuffle import shuffle
 from DecisionTree.DT import DT, Info_Gain
 import numpy as np
+from utils.N_Fold import N_Fold
+
 def main():
-    (X, Y) = load_optdigits_data(2500)
+    (X, Y) = load_spambase_data(5000)
     (X, Y) = shuffle(X, Y)
 
     tree = DT(Info_Gain.Gini)
-    tree.fit(X, Y)
-    test = tree.predict(X)
-    print(tree.plurality_value((X, Y)))
-    
+    (train, test) = N_Fold((X, Y), tree)
     print()
-
+    # tree.fit(X, Y)
+    # test = tree.predict(X)
 
 if __name__ == "__main__":
     main()

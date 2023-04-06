@@ -7,5 +7,7 @@ class DT_branch(DT_node):
         
         super().__init__(attribute)
 
+    #Less than 'operator'
+    #Allows for 'DT_nodes' to keep a sorted list of 'DT_branches' based on the labelled value
     def __lt__(self, other):
         return self.value <= other.value
