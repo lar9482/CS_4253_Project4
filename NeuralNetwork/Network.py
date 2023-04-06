@@ -30,7 +30,7 @@ class Network(Model):
         for deep_layer_size in deep_layer_sizes:
             self.deep_layers.append(np.empty((deep_layer_size, 1)))
 
-        #The output layers
+        #The output layer
         self.deep_layers.append(np.empty((output_layer_size, 1)))
 
         #The weights between each layer
@@ -51,17 +51,33 @@ class Network(Model):
             for i in range(0, len(self.weights[weight_layer])):
                 for j in range(0, len(self.weights[weight_layer][0])):
                     self.weights[weight_layer][i, j] = random.uniform(-1, 1)
-                    
-    def _feed_in_input(self, X):
-        X.transpose()
-        pass
 
+    def __feed_in_input(self, X):
+        for i in range(0, len(X)):
+            self.deep_layers[0][i] = X[i]
+
+    def __feed_forward(self):
+        for layer in range(1, len(self.deep_layers)):
+            
+            for j in range(0, len(self.deep_layers[layer])):
+                in_j = 0
+                for i in range(0, len(self.deep_layers[layer-1])):
+                    in_j += self.weights[layer-1][i][j]*self.deep_layers[layer-1][i]
+                a_j = self.activate(in_j)
+
+                self.deep_layers[layer][j] = a_j
+            
+
+
+    #Implementation of 'Figure 1' from the instructions.
     def fit(self, X, Y):
         self.__initialize_weights()
 
-        # for example in range(0, len(X)):
-
-        # print()
+        for example in range(0, len(X)):
+            self.__feed_in_input(X[example])
+            self.__feed_forward()
+            
+        print()
         
 
 

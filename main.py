@@ -3,6 +3,7 @@ from utils.shuffle import shuffle
 
 from DecisionTree.DT import DT, Info_Gain
 from NeuralNetwork.Network import Network
+from NeuralNetwork.activation_functions import sigmoid, sigmoid_derivative
 import numpy as np
 from utils.N_Fold import N_Fold
 
@@ -17,7 +18,7 @@ def test_DT():
 def main():
     (X, Y) = load_spambase_data(2500)
     (X, Y) = shuffle(X, Y)
-    network = Network(len(X[0]), [20, 10], len(np.unique(Y)))
+    network = Network(len(X[0]), [20, 10], len(np.unique(Y)), sigmoid, sigmoid_derivative)
     network.fit(X, Y)
     print()
     # tree.fit(X, Y)
