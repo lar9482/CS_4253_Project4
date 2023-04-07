@@ -1,6 +1,7 @@
 from utils.Model import Model
 import numpy as np
 import random
+import copy
 
 class Network(Model):
     def __init__(self, input_layer_size, #Integer
@@ -23,15 +24,21 @@ class Network(Model):
         #All of the layers in the neural network
         self.deep_layers = []
 
+        #Raw values of the layers in the neural network
+        self.raw_deep_layers = []
+
         #The input layer
         self.deep_layers.append(np.empty((input_layer_size, 1)))
+        self.raw_deep_layers.append(np.empty((input_layer_size, 1)))
 
         #The deep layers
         for deep_layer_size in deep_layer_sizes:
             self.deep_layers.append(np.empty((deep_layer_size, 1)))
+            self.raw_deep_layers.append(np.empty((deep_layer_size, 1)))
 
         #The output layer
         self.deep_layers.append(np.empty((output_layer_size, 1)))
+        self.raw_deep_layers.append(np.empty((output_layer_size, 1)))
 
         #The weights between each layer
         self.weights = []
@@ -55,20 +62,26 @@ class Network(Model):
     def __feed_in_input(self, X):
         for i in range(0, len(X)):
             self.deep_layers[0][i] = X[i]
+            self.raw_deep_layers[0][i] = X[i] 
 
     def __feed_forward(self):
+
+        #Processing data through the all of the inner deep layers and to the output layer
         for layer in range(1, len(self.deep_layers)):
             
+            #For each node in the current layer.
             for j in range(0, len(self.deep_layers[layer])):
+
+                #Basically perform a matrix multiplication with the weights and the previous layer
                 in_j = 0
                 for i in range(0, len(self.deep_layers[layer-1])):
                     in_j += self.weights[layer-1][i][j]*self.deep_layers[layer-1][i]
                 a_j = self.activate(in_j)
 
                 self.deep_layers[layer][j] = a_j
+                self.raw_deep_layers[layer][j] = in_j
+                
             
-
-
     #Implementation of 'Figure 1' from the instructions.
     def fit(self, X, Y):
         self.__initialize_weights()
@@ -76,6 +89,9 @@ class Network(Model):
         for example in range(0, len(X)):
             self.__feed_in_input(X[example])
             self.__feed_forward()
+            
+            
+            
             
         print()
         
