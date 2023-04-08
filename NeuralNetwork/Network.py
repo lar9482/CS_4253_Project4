@@ -8,12 +8,16 @@ class Network(Model):
                        deep_layer_sizes, #List of integers
                        output_layer_size, #Integer
                        activate = None,
-                       d_activate = None):
+                       d_activate = None,
+                       alpha = 0.5):
         
         #The layer sizes for the neural network
         self.input_layer_size = input_layer_size
         self.deep_layer_sizes  = deep_layer_sizes
         self.output_layer_size = output_layer_size
+
+        #The learning rate
+        self.alpha = alpha
 
         #The activation function
         self.activate = activate
@@ -21,10 +25,10 @@ class Network(Model):
         #Derivative of the activation function
         self.d_activate = d_activate
 
-        #All of the layers in the neural network
+        #All of the layers in the neural network(after the activation)
         self.deep_layers = []
 
-        #Raw values of the layers in the neural network
+        #Raw values of the layers in the neural network(before the activation)
         self.raw_deep_layers = []
 
         #The input layer
@@ -47,11 +51,15 @@ class Network(Model):
             #Placing weights inbetween the input layer and the 1st deep layer
             if (i == 0):
                 self.weights.append(np.empty((input_layer_size, deep_layer_sizes[i])))
+
+            #Placing weights inbetween the last seen layer, and the current layer
             else:
                 self.weights.append(np.empty((deep_layer_sizes[i-1], deep_layer_sizes[i])))
 
         #Placing weights inbetween the last deep layer and the output layer
-        self.weights.append(np.empty((deep_layer_sizes[len(deep_layer_sizes) - 1], output_layer_size)))
+        self.weights.append(np.empty(
+                                (deep_layer_sizes[len(deep_layer_sizes) - 1], output_layer_size)
+                           ))
 
     def __initialize_weights(self):
         for weight_layer in range(0, len(self.weights)):
@@ -102,7 +110,7 @@ class Network(Model):
         return errors
     
     def __backpropagation(self, actual_output):
-        errors = self.__initialize_error_layers()
+        delta_errors = self.__initialize_error_layers()
 
         #For deep layer in the neural network
         for layer in range(len(self.deep_layers)-1, -1, -1):
@@ -113,8 +121,8 @@ class Network(Model):
 
                 #For every node in the output layer
                 for j in range(0, len(self.deep_layers[layer])):
-                    
-                    errors[layer][j] = self.d_activate(
+
+                    delta_errors[layer][j] = self.d_activate(
                                             self.raw_deep_layers[layer][j]
                                        ) * (actual_output[j] - self.deep_layers[layer][j])
             
@@ -124,13 +132,25 @@ class Network(Model):
                     weighted_error_j = 0
 
                     for j in range(0, len(self.deep_layers[layer+1])):
-                        weighted_error_j += self.weights[layer][i][j]*errors[layer+1][j]
+                        weighted_error_j += self.weights[layer][i][j]*delta_errors[layer+1][j]
                     
-                    errors[layer][i] = self.d_activate(
+                    delta_errors[layer][i] = self.d_activate(
                                             self.raw_deep_layers[layer][j]
                                        ) * (weighted_error_j)
             
-        return errors
+        return delta_errors
+    
+    def __update_weights(self, delta_errors):
+        for weight_layer in range(0, len(self.weights)):
+            
+            layer = self.weights.index(self.weights[weight_layer])
+            for i in range(0, len(self.weights[weight_layer])):
+                for j in range(0, len(self.weights[weight_layer][0])):
+                    
+                    self.weights[weight_layer][i][j] = self.weights[weight_layer][i][j] + (self.alpha)*(self.deep_layers[layer][i])*(delta_errors[layer+1][j])
+
+        
+        
 
     #Implementation of 'Figure 1' from the instructions.
     def fit(self, X, Y):
@@ -141,11 +161,7 @@ class Network(Model):
             self.__feed_forward()
 
             actual_output = self.__get_actual_output(Y[example], self.output_layer_size)
-            errors = self.__backpropagation(actual_output)
+            delta_errors = self.__backpropagation(actual_output)
+
+            self.__update_weights(delta_errors)
             
-
-            
-        
-
-
-        

@@ -16,7 +16,7 @@ def test_DT():
     print()
 
 def main():
-    (X, Y) = load_optdigits_data(100)
+    (X, Y) = load_spambase_data(2500)
     (X, Y) = shuffle(X, Y)
     network = Network(len(X[0]), [30, 20], len(np.unique(Y)), sigmoid, sigmoid_derivative)
     network.fit(X, Y)
