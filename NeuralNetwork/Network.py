@@ -80,8 +80,27 @@ class Network(Model):
 
                 self.deep_layers[layer][j] = a_j
                 self.raw_deep_layers[layer][j] = in_j
-                
-            
+    
+    def __get_actual_output(self, Y, num_classes):
+        actual_output = np.empty((num_classes, 1))
+        
+        for class_name in range(0, num_classes):
+            if (int(Y[0]) == class_name):
+                actual_output[class_name] = 1
+            else:
+                actual_output[class_name] = 0
+        
+        return actual_output
+    
+    def __initialize_error_layers(self):
+        errors = []
+        for i in range(0, len(self.deep_layers)):
+            errors.append(np.copy(self.deep_layers[i]))
+
+        return errors
+    
+    
+
     #Implementation of 'Figure 1' from the instructions.
     def fit(self, X, Y):
         self.__initialize_weights()
@@ -89,11 +108,11 @@ class Network(Model):
         for example in range(0, len(X)):
             self.__feed_in_input(X[example])
             self.__feed_forward()
+
+            actual_output = self.__get_actual_output(Y[example], self.output_layer_size)
+            errors = self.__initialize_error_layers()
+
             
-            
-            
-            
-        print()
         
 
 

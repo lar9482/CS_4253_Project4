@@ -16,11 +16,12 @@ def test_DT():
     print()
 
 def main():
-    (X, Y) = load_spambase_data(2500)
+    (X, Y) = load_optdigits_data(100)
     (X, Y) = shuffle(X, Y)
     network = Network(len(X[0]), [20, 10], len(np.unique(Y)), sigmoid, sigmoid_derivative)
     network.fit(X, Y)
-    print()
+    
+        
     # tree.fit(X, Y)
     # test = tree.predict(X)
 
