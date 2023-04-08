@@ -84,6 +84,8 @@ class Network(Model):
     def __get_actual_output(self, Y, num_classes):
         actual_output = np.empty((num_classes, 1))
         
+        #Y is assigned an index that matches its class.
+        #It will be assigned one, while the rest of the elements are assigned zero
         for class_name in range(0, num_classes):
             if (int(Y[0]) == class_name):
                 actual_output[class_name] = 1
@@ -99,7 +101,36 @@ class Network(Model):
 
         return errors
     
-    
+    def __backpropagation(self, actual_output):
+        errors = self.__initialize_error_layers()
+
+        #For deep layer in the neural network
+        for layer in range(len(self.deep_layers)-1, -1, -1):
+            
+            #For the output layer, calculate the error vector
+            #between the actual output vector and the predicted one. 
+            if (layer == len(self.deep_layers)-1):
+
+                #For every node in the output layer
+                for j in range(0, len(self.deep_layers[layer])):
+                    
+                    errors[layer][j] = self.d_activate(
+                                            self.raw_deep_layers[layer][j]
+                                       ) * (actual_output[j] - self.deep_layers[layer][j])
+            
+            #For the rest of the layers, propagate the error vectors back
+            else:
+                for i in range(0, len(self.deep_layers[layer])):
+                    weighted_error_j = 0
+
+                    for j in range(0, len(self.deep_layers[layer+1])):
+                        weighted_error_j += self.weights[layer][i][j]*errors[layer+1][j]
+                    
+                    errors[layer][i] = self.d_activate(
+                                            self.raw_deep_layers[layer][j]
+                                       ) * (weighted_error_j)
+            
+        return errors
 
     #Implementation of 'Figure 1' from the instructions.
     def fit(self, X, Y):
@@ -110,7 +141,8 @@ class Network(Model):
             self.__feed_forward()
 
             actual_output = self.__get_actual_output(Y[example], self.output_layer_size)
-            errors = self.__initialize_error_layers()
+            errors = self.__backpropagation(actual_output)
+            
 
             
         
