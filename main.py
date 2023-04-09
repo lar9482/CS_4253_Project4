@@ -7,23 +7,39 @@ from NeuralNetwork.activation_functions import sigmoid, sigmoid_derivative
 import numpy as np
 from utils.N_Fold import N_Fold
 
-def test_DT():
-    (X, Y) = load_spambase_data(2000)
-    (X, Y) = shuffle(X, Y)
+from utils.graph import graph_DT_data
 
-    tree = DT(Info_Gain.Gini)
-    (train, test) = N_Fold((X, Y), tree)
-    print()
+def test_DT():
+    domains = [load_EMG_data]
+    num_instances = [10, 11]
+    info_gains = [Info_Gain.Entropy, Info_Gain.Gini]
+
+    for domain in domains:
+        data = {}
+        for gain in info_gains:
+            for instance in num_instances:
+                (X, Y) = domain(instance)
+                (X, Y) = shuffle(X, Y)
+                tree = DT(gain)
+                (train, test) = N_Fold((X, Y), tree)
+
+                if (not gain in data.keys()):
+                    data[gain] = [(train, test, instance)]
+                else:
+                    data[gain].append((train, test, instance))
+
+        graph_DT_data(data, num_instances, domain)
 
 def main():
-    (X, Y) = load_spambase_data(2500)
-    (X, Y) = shuffle(X, Y)
-    network = Network(len(X[0]), [30, 20], len(np.unique(Y)), sigmoid, sigmoid_derivative)
-    network.fit(X, Y)
+    # (X, Y) = load_optdigits_data(100)
+    # (X, Y) = shuffle(X, Y)
+    # network = Network(len(X[0]), [100, 64, 10], len(np.unique(Y)), sigmoid, sigmoid_derivative, 0.5, 16, 25)
+    # network.fit(X, Y)
+    # accuracy = network.eval(X, Y)
+    # print(accuracy)
     
         
-    # tree.fit(X, Y)
-    # test = tree.predict(X)
+    test_DT()
 
 if __name__ == "__main__":
     main()

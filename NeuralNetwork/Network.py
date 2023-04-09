@@ -7,9 +7,11 @@ class Network(Model):
     def __init__(self, input_layer_size, #Integer
                        deep_layer_sizes, #List of integers
                        output_layer_size, #Integer
-                       activate = None,
-                       d_activate = None,
-                       alpha = 0.5):
+                       activate = None, #Function
+                       d_activate = None, #Function
+                       alpha = 0.5,
+                       batch_size = 16,
+                       epochs = 100):
         
         #The layer sizes for the neural network
         self.input_layer_size = input_layer_size
@@ -18,6 +20,12 @@ class Network(Model):
 
         #The learning rate
         self.alpha = alpha
+
+        #The batch size for minibatch training
+        self.batch_size = batch_size
+
+        #The number of iterations to train the network on 
+        self.epochs = epochs
 
         #The activation function
         self.activate = activate
@@ -135,12 +143,14 @@ class Network(Model):
                         weighted_error_j += self.weights[layer][i][j]*delta_errors[layer+1][j]
                     
                     delta_errors[layer][i] = self.d_activate(
-                                            self.raw_deep_layers[layer][j]
+                                            self.raw_deep_layers[layer+1][j]
                                        ) * (weighted_error_j)
             
         return delta_errors
     
     def __update_weights(self, delta_errors):
+
+        #Scanning through every weight layer to update them.
         for weight_layer in range(0, len(self.weights)):
             
             layer = self.weights.index(self.weights[weight_layer])
@@ -149,19 +159,39 @@ class Network(Model):
                     
                     self.weights[weight_layer][i][j] = self.weights[weight_layer][i][j] + (self.alpha)*(self.deep_layers[layer][i])*(delta_errors[layer+1][j])
 
-        
-        
-
     #Implementation of 'Figure 1' from the instructions.
     def fit(self, X, Y):
         self.__initialize_weights()
 
+        for epoch in range(0, self.epochs):
+            for example in range(0, len(X)):
+                self.__feed_in_input(X[example])
+                self.__feed_forward()
+            
+                actual_output = self.__get_actual_output(Y[example], self.output_layer_size)
+                delta_errors = self.__backpropagation(actual_output)
+
+                self.__update_weights(delta_errors)
+            
+            print('Epoch %s' % str(epoch+1))
+
+    def predict(self, X):
+        prediction = np.empty((len(X), 1))
+
         for example in range(0, len(X)):
             self.__feed_in_input(X[example])
             self.__feed_forward()
-
-            actual_output = self.__get_actual_output(Y[example], self.output_layer_size)
-            delta_errors = self.__backpropagation(actual_output)
-
-            self.__update_weights(delta_errors)
+            raw_prediction = self.deep_layers[len(self.deep_layers) - 1]
             
+            prediction[example] = np.argmax(raw_prediction)
+        
+        return prediction
+    
+    def eval(self, X, Y):
+        actual_Y = self.predict(X)
+        correct_guesses = 0
+        for class_id in range(0, len(Y)): 
+            if (Y[class_id][0] == actual_Y[class_id][0]):
+                correct_guesses += 1
+
+        return correct_guesses / len(Y)     
