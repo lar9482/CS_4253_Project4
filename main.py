@@ -10,8 +10,8 @@ from utils.N_Fold import N_Fold
 from utils.graph import graph_DT_data
 
 def test_DT():
-    domains = [load_spambase_data]
-    num_instances = [10, 50, 100, 500, 1000, 2500, 4500]
+    domains = [load_EMG_data, load_optdigits_data, load_spambase_data]
+    num_instances = [50, 100, 500, 1000, 2500, 3500, 4500]
     # num_instances = [4500]
     info_gains = [Info_Gain.Entropy, Info_Gain.Gini]
 
