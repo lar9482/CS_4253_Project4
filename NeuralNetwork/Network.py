@@ -127,7 +127,8 @@ class Network(Model):
             #between the actual output vector and the predicted one. 
             if (layer == len(self.deep_layers)-1):
 
-                #For every node in the output layer
+                #For every node in the output layer, compute the error with respect to the target outputs
+                #and begin feeding them back through the network.
                 for j in range(0, len(self.deep_layers[layer])):
 
                     delta_errors[layer][j] = self.d_activate(
