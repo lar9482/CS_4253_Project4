@@ -1,10 +1,14 @@
 import matplotlib.pyplot as plt
+import os
+import sys
 
 def graph_DT_data(data, num_instances, domain):
 
     possibleColors =['r', 'b', 'g', 'm', 'c', 'k']
     currentColor = 0
     legendList = []
+
+    plt.legend('', frameon=False)
 
     for info_gain_metric in data.keys():
         all_instances = []
@@ -27,5 +31,10 @@ def graph_DT_data(data, num_instances, domain):
     plt.legend(bbox_to_anchor=(1.15, 1.15), loc='upper right')
     plt.xlabel('Number of Instances')
     plt.ylabel('Accuracy')
-    plt.show()
-    print()
+    
+    plt.xlim(0, 4600)
+    plt.ylim(0, 1.3)
+
+    filePath = os.path.join(sys.path[0], "Results", "DecisionTree", domain.__name__)
+    plt.savefig(filePath)
+    plt.clf()

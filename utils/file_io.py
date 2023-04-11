@@ -1,6 +1,7 @@
 import os
 import sys
 import numpy as np
+from utils.shuffle import shuffle
 
 def load_EMG_data(instances = 5000, folder = "sub2"):
     parent_folder = "EMG Physical Action Data Set"
@@ -77,6 +78,8 @@ def load_spambase_data(instances = 4500):
     file_path = os.path.join(sys.path[0], "Datasets", "Spambase", "spambase_data.data")
     items_read = 0
 
+    global_X = np.empty((4601, 57))
+    global_Y = np.empty((4601, 1))
     X = np.empty((instances, 57))
     Y = np.empty((instances, 1))
     with open(file_path, "r") as f:
@@ -84,19 +87,24 @@ def load_spambase_data(instances = 4500):
             #Getting a row from the file
             content = f.readline().split(',')   
             #If there are no more rows left, or the maximum subsection has been read, move on to the next file  
-            if content[0] == '' or items_read >= instances:
+            if content[0] == '':
                 break 
-
-            #Convert content list into a list of floats
+            
             content = [float(attri) for attri in content]
 
             #Remove the last element from content, which is the classification
             class_name = content.pop()
 
-            X[items_read, :] = content
-            Y[items_read, :] = [class_name]
+            global_X[items_read, :] = content
+            global_Y[items_read, :] = [class_name]
             
             items_read += 1
+        
+        (global_X, global_Y) = shuffle(global_X, global_Y)
+
+        indices = np.random.randint(instances, size=(instances))
+        X = np.array([global_X[indice, :] for indice in indices])
+        Y = np.array([global_Y[indice, :] for indice in indices])
         
         f.close()
     
