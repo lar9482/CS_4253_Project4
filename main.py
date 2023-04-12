@@ -47,18 +47,21 @@ def run_NN(alpha, node_option, X, Y, epochs,
     (train_acc, test_acc) = N_Fold((X, Y), network)
 
     lock.acquire()
-    if (not str(node_option) in node_option_data.keys()):
-        node_option_data[str(node_option)] = [(train_acc, test_acc, alpha)]
+    print(alpha)
+    if (not (str(node_option) + str(alpha)) in node_option_data.keys()):
+        node_option_data[str(node_option) + str(alpha)] = [(train_acc, test_acc)]
     else:
-        node_option_data[str(node_option)].append((train_acc, test_acc, alpha))
+        
+        node_option_data[str(node_option) + str(alpha)].append((train_acc, test_acc))
+        
     lock.release()
 
 
 def test_NN():
 
-    epochs = 50
-    instances = 250
-    domains = [load_EMG_data, load_optdigits_data, load_spambase_data]
+    epochs = 100
+    instances = 500
+    domains = [load_EMG_data]
     for domain in domains:
 
         (X, Y) = domain(instances)
@@ -68,7 +71,7 @@ def test_NN():
                         [int(2*len(X[0])), int((len(X[0]) + len(np.unique(Y))) / 2), int(len(np.unique(Y))/2)],
                         [int(len(X[0])/2), int((len(X[0]) + len(np.unique(Y))) / 2), int(2*len(np.unique(Y))) ],
                         [int((len(X[0]) + len(np.unique(Y))) / 2)]]
-        learning_rates = [0.1, 0.25, 0.5, 0.75, 1]
+        learning_rates = [0.001, 0.01, 0.1, 0.5, 1]
         
         with Manager() as manager:
             all_processes = []
@@ -102,18 +105,20 @@ def test_NN():
 
             
 def main():
-    # (X, Y) = load_optdigits_data(100)
-    # (X, Y) = shuffle(X, Y)
-    # network = Network(len(X[0]), [128, 10], len(np.unique(Y)), sigmoid, sigmoid_derivative, 0.5, 16, 50)
+    (X, Y) = load_optdigits_data(100)
+    (X, Y) = shuffle(X, Y)
+    network = Network(len(X[0]), [60], len(np.unique(Y)), sigmoid, sigmoid_derivative, 0.3, 0.0001, 50)
 
-    # X = normalize(X)
+    X = normalize(X)
+
+    N_Fold((X, Y), network)
     # network.fit(X, Y)
     # accuracy = network.eval(X, Y)
     # print(accuracy)
     
         
     # test_DT()
-    test_NN()
+    # test_NN()
 
 if __name__ == "__main__":
     main()

@@ -10,7 +10,7 @@ class Network(Model):
                        activate = None, #Function
                        d_activate = None, #Function
                        alpha = 0.5,
-                       batch_size = 16,
+                       decay = 0.01,
                        epochs = 100):
         
         #The layer sizes for the neural network
@@ -22,7 +22,7 @@ class Network(Model):
         self.alpha = alpha
 
         #The batch size for minibatch training
-        self.batch_size = batch_size
+        self.decay = decay
 
         #The number of iterations to train the network on 
         self.epochs = epochs
@@ -71,9 +71,7 @@ class Network(Model):
 
     def __initialize_weights(self):
         for weight_layer in range(0, len(self.weights)):
-            for i in range(0, len(self.weights[weight_layer])):
-                for j in range(0, len(self.weights[weight_layer][0])):
-                    self.weights[weight_layer][i, j] = random.uniform(-1, 1)
+            self.weights[weight_layer] = np.random.uniform(-1, 1, (len(self.weights[weight_layer]), len(self.weights[weight_layer][0])))
 
     def __feed_in_input(self, X):
         for i in range(0, len(X)):
@@ -158,7 +156,7 @@ class Network(Model):
             for i in range(0, len(self.weights[weight_layer])):
                 for j in range(0, len(self.weights[weight_layer][0])):
                     
-                    self.weights[weight_layer][i][j] = self.weights[weight_layer][i][j] + (self.alpha)*(self.deep_layers[layer][i])*(delta_errors[layer+1][j])
+                    self.weights[weight_layer][i][j] = (1 - (self.alpha*self.decay))*self.weights[weight_layer][i][j] + (self.alpha)*(self.deep_layers[layer][i])*(delta_errors[layer+1][j])
 
     #Implementation of 'Figure 1' from the instructions.
     def fit(self, X, Y):
@@ -174,6 +172,8 @@ class Network(Model):
 
                 self.__update_weights(delta_errors)
             
+            accuracy = self.eval(X, Y)
+            print(accuracy)
             print('Process %s processing epoch %s' % (str(str(os.getpid())), str(epoch+1)))
 
     def predict(self, X):
