@@ -9,7 +9,7 @@ from utils.N_Fold import N_Fold
 from sklearn.preprocessing import normalize
 
 from multiprocessing import Process, Manager
-from utils.graph import graph_DT_data
+from utils.graph import graph_DT_data, graph_NN_data
 
 def test_DT():
     domains = [load_EMG_data, load_optdigits_data, load_spambase_data]
@@ -34,7 +34,7 @@ def test_DT():
         graph_DT_data(data, num_instances, domain)
 
 def run_NN(alpha, node_option, X, Y, epochs,
-           alpha_accuracy,
+           node_option_data,
            lock):
     
     network = Network(len(X[0]), node_option, len(np.unique(Y)),
@@ -47,17 +47,17 @@ def run_NN(alpha, node_option, X, Y, epochs,
     (train_acc, test_acc) = N_Fold((X, Y), network)
 
     lock.acquire()
-    if (not str(alpha) in alpha_accuracy.keys()):
-        alpha_accuracy[alpha] = [(train_acc, test_acc, str(node_option))]
+    if (not str(node_option) in node_option_data.keys()):
+        node_option_data[str(node_option)] = [(train_acc, test_acc, alpha)]
     else:
-        alpha_accuracy[alpha].append((train_acc, test_acc, str(node_option)))
+        node_option_data[str(node_option)].append((train_acc, test_acc, alpha))
     lock.release()
 
 
 def test_NN():
 
     epochs = 50
-    instances = 200
+    instances = 250
     domains = [load_EMG_data, load_optdigits_data, load_spambase_data]
     for domain in domains:
 
@@ -66,13 +66,14 @@ def test_NN():
         X = normalize(X)
         node_options = [[int(len(X[0])), int(len(np.unique(Y)))], 
                         [int(2*len(X[0])), int((len(X[0]) + len(np.unique(Y))) / 2), int(len(np.unique(Y))/2)],
-                        [int(len(X[0])/2), int((len(X[0]) + len(np.unique(Y))) / 2), int(2*len(np.unique(Y))) ]]
-        learning_rates = [0.1, 0.5, 1]
-        print(str(node_options[0]))
+                        [int(len(X[0])/2), int((len(X[0]) + len(np.unique(Y))) / 2), int(2*len(np.unique(Y))) ],
+                        [int((len(X[0]) + len(np.unique(Y))) / 2)]]
+        learning_rates = [0.1, 0.25, 0.5, 0.75, 1]
+        
         with Manager() as manager:
             all_processes = []
             lock = manager.Lock()
-            alpha_accuracy = manager.dict()
+            node_option_data = manager.dict()
 
             for alpha in learning_rates:
                 for node_option in node_options:
@@ -82,10 +83,22 @@ def test_NN():
                         X,
                         Y,
                         epochs,
-                        alpha_accuracy,
+                        node_option_data,
                         lock
                     ))
                     all_processes.append(process)
+
+            #Start all of the subprocesses
+            for process in all_processes:
+                process.start()
+
+            #Wait for all subprocesses to finish before continuing
+            for process in all_processes:
+                process.join()
+
+            data_dict = dict(node_option_data)
+
+            graph_NN_data(data_dict, domain)
 
             
 def main():

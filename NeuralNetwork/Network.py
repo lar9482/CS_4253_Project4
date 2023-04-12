@@ -1,7 +1,7 @@
 from utils.Model import Model
 import numpy as np
 import random
-import copy
+import os
 
 class Network(Model):
     def __init__(self, input_layer_size, #Integer
@@ -174,7 +174,7 @@ class Network(Model):
 
                 self.__update_weights(delta_errors)
             
-            print('Epoch %s' % str(epoch+1))
+            print('Process %s processing epoch %s' % (str(str(os.getpid())), str(epoch+1)))
 
     def predict(self, X):
         prediction = np.empty((len(X), 1))
