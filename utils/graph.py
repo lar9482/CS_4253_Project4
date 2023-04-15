@@ -71,3 +71,18 @@ def graph_NN_data(data_dict, domain):
     filePath = os.path.join(sys.path[0], "Results", "NN", domain.__name__)
     plt.savefig(filePath)
     plt.clf()
+
+def graph_training_testing_NN_data(domain_name, training, testing, node_options, alpha, decay):
+    x = list(range(0, len(training)))
+
+    plt.plot(x, training, color = 'r', label='Training')
+    plt.plot(x, testing, color = 'b', label='Testing')
+
+    plt.legend(bbox_to_anchor=(1.15, 1.15), loc='upper right')
+    plt.xlabel('Epochs')
+    plt.ylabel('Accuracy')
+
+    file_name = '_'.join([domain_name, node_options, alpha, decay])
+    filePath = os.path.join(sys.path[0], "Results", "NN", file_name + '.png')
+    plt.savefig(filePath)
+    plt.clf()

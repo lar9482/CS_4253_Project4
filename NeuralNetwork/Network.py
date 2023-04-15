@@ -159,8 +159,12 @@ class Network(Model):
                     self.weights[weight_layer][i][j] = (1 - (self.alpha*self.decay))*self.weights[weight_layer][i][j] + (self.alpha)*(self.deep_layers[layer][i])*(delta_errors[layer+1][j])
 
     #Implementation of 'Figure 1' from the instructions.
-    def fit(self, X, Y):
+    def fit(self, X, Y, X_Test = [], Y_Test = []):
         self.__initialize_weights()
+
+        #Collecting stats
+        train_acc = []
+        test_acc = []
 
         for epoch in range(0, self.epochs):
             for example in range(0, len(X)):
@@ -172,9 +176,19 @@ class Network(Model):
 
                 self.__update_weights(delta_errors)
             
-            accuracy = self.eval(X, Y)
-            print(accuracy)
+            #Collecting statistics(Performance of training and testing set on the current epoch)
+            train_accuracy = self.eval(X, Y)
+            train_acc.append(train_accuracy)
+
+            test_accuracy = self.eval(X_Test, Y_Test)
+            test_acc.append(test_accuracy)
+            
+            #Reporting progress in the console.
+            print(train_accuracy)
             print('Process %s processing epoch %s' % (str(str(os.getpid())), str(epoch+1)))
+            print()
+
+        return (train_acc, test_acc)
 
     def predict(self, X):
         prediction = np.empty((len(X), 1))

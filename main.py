@@ -3,9 +3,9 @@ from utils.shuffle import shuffle
 
 from DecisionTree.DT import DT, Info_Gain
 from NeuralNetwork.Network import Network
-from NeuralNetwork.activation_functions import sigmoid, sigmoid_derivative
+from NeuralNetwork.activation_functions import sigmoid, sigmoid_derivative, tanh, tanh_derivative
 import numpy as np
-from utils.N_Fold import N_Fold
+from utils.N_Fold import N_Fold, N_Fold_NN
 from sklearn.preprocessing import normalize
 
 from multiprocessing import Process, Manager
@@ -53,7 +53,6 @@ def run_NN(alpha, node_option, X, Y, epochs,
     else:
         
         node_option_data[str(node_option) + str(alpha)].append((train_acc, test_acc))
-        
     lock.release()
 
 
@@ -69,9 +68,11 @@ def test_NN():
         X = normalize(X)
         node_options = [[int(len(X[0])), int(len(np.unique(Y)))], 
                         [int(2*len(X[0])), int((len(X[0]) + len(np.unique(Y))) / 2), int(len(np.unique(Y))/2)],
-                        [int(len(X[0])/2), int((len(X[0]) + len(np.unique(Y))) / 2), int(2*len(np.unique(Y))) ],
                         [int((len(X[0]) + len(np.unique(Y))) / 2)]]
-        learning_rates = [0.001, 0.01, 0.1, 0.5, 1]
+        learning_rates = [0.01, 0.5, 1]
+
+        decay_rate = 0.0001
+
         
         with Manager() as manager:
             all_processes = []
@@ -105,13 +106,13 @@ def test_NN():
 
             
 def main():
-    (X, Y) = load_optdigits_data(100)
+    (X, Y) = load_optdigits_data(10)
     (X, Y) = shuffle(X, Y)
-    network = Network(len(X[0]), [60], len(np.unique(Y)), sigmoid, sigmoid_derivative, 0.3, 0.0001, 50)
+    network = Network(len(X[0]), [60], len(np.unique(Y)), sigmoid, sigmoid_derivative, 0.4, 0.0001, 5)
 
     X = normalize(X)
 
-    N_Fold((X, Y), network)
+    N_Fold_NN((X, Y), network, load_optdigits_data.__name__)
     # network.fit(X, Y)
     # accuracy = network.eval(X, Y)
     # print(accuracy)
