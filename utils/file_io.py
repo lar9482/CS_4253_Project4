@@ -1,6 +1,7 @@
 import os
 import sys
 import numpy as np
+import pandas as pd
 from utils.shuffle import shuffle
 
 def load_EMG_data(instances = 5000, folder = "sub2"):
@@ -109,3 +110,10 @@ def load_spambase_data(instances = 4500):
         f.close()
     
     return (X, Y)
+
+
+def save_NN_data(data, domain_name):
+    df = pd.DataFrame.from_dict(data)
+    filePath = os.path.join(sys.path[0], "Results", "NN", domain_name + '.xlsx')
+    df.to_excel(filePath,sheet_name='data')
+    

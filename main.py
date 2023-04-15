@@ -1,4 +1,4 @@
-from utils.file_io import load_EMG_data, load_optdigits_data, load_spambase_data
+from utils.file_io import load_EMG_data, load_optdigits_data, load_spambase_data, save_NN_data
 from utils.shuffle import shuffle
 
 from DecisionTree.DT import DT, Info_Gain
@@ -9,7 +9,7 @@ from utils.N_Fold import N_Fold, N_Fold_NN
 from sklearn.preprocessing import normalize
 
 from multiprocessing import Process, Manager
-from utils.graph import graph_DT_data, graph_NN_data
+from utils.graph import graph_DT_data
 
 def test_DT():
     domains = [load_EMG_data, load_optdigits_data, load_spambase_data]
@@ -33,7 +33,7 @@ def test_DT():
 
         graph_DT_data(data, num_instances, domain)
 
-def run_NN(alpha, node_option, X, Y, epochs,
+def run_NN(name, alpha, decay, node_option, X, Y, epochs,
            node_option_data,
            lock):
     
@@ -41,56 +41,62 @@ def run_NN(alpha, node_option, X, Y, epochs,
                       sigmoid,
                       sigmoid_derivative,
                       alpha,
-                      1,
+                      decay,
                       epochs)
     
-    (train_acc, test_acc) = N_Fold((X, Y), network)
+    (train_acc, test_acc) = N_Fold_NN((X, Y), network, name)
 
     lock.acquire()
-    print(alpha)
-    if (not (str(node_option) + str(alpha)) in node_option_data.keys()):
-        node_option_data[str(node_option) + str(alpha)] = [(train_acc, test_acc)]
-    else:
-        
-        node_option_data[str(node_option) + str(alpha)].append((train_acc, test_acc))
+    node_option_data.append({
+                             'node_options': str(node_option), 
+                             'alpha': str(alpha),
+                             'decay': str(decay),
+                             'training_accuracy': str(train_acc),
+                             'testing_accuracy': str(test_acc)})
     lock.release()
 
 
 def test_NN():
 
-    epochs = 100
-    instances = 500
+    epochs = 5
+    instances = 50
     domains = [load_EMG_data]
     for domain in domains:
 
         (X, Y) = domain(instances)
         (X, Y) = shuffle(X, Y)
-        X = normalize(X)
-        node_options = [[int(len(X[0])), int(len(np.unique(Y)))], 
-                        [int(2*len(X[0])), int((len(X[0]) + len(np.unique(Y))) / 2), int(len(np.unique(Y))/2)],
-                        [int((len(X[0]) + len(np.unique(Y))) / 2)]]
-        learning_rates = [0.01, 0.5, 1]
 
-        decay_rate = 0.0001
+        if (domain.__name__ != 'load_spambase_data'):
+            X = normalize(X)
+
+        node_options = [[int(len(X[0])), int(len(np.unique(Y)))], 
+                        [int(2*len(X[0])), int((len(X[0]) + len(np.unique(Y))) / 2), int(len(np.unique(Y)))],
+                        [int((len(X[0])))]]
+        learning_rates = [0.0001, 0.01, 0.5]
+
+        decay_rates = [0, 0.0001, 0.1]
 
         
         with Manager() as manager:
             all_processes = []
             lock = manager.Lock()
-            node_option_data = manager.dict()
+            node_option_data = manager.list()
 
             for alpha in learning_rates:
-                for node_option in node_options:
-                    process = Process(target=run_NN, args=(
-                        alpha,
-                        node_option,
-                        X,
-                        Y,
-                        epochs,
-                        node_option_data,
-                        lock
-                    ))
-                    all_processes.append(process)
+                for decay in decay_rates:
+                    for node_option in node_options:
+                        process = Process(target=run_NN, args=(
+                            domain.__name__,
+                            alpha,
+                            decay,
+                            node_option,
+                            X,
+                            Y,
+                            epochs,
+                            node_option_data,
+                            lock
+                        ))
+                        all_processes.append(process)
 
             #Start all of the subprocesses
             for process in all_processes:
@@ -100,26 +106,26 @@ def test_NN():
             for process in all_processes:
                 process.join()
 
-            data_dict = dict(node_option_data)
+            data_list = list(node_option_data)
 
-            graph_NN_data(data_dict, domain)
+            save_NN_data(data_list, domain.__name__)
 
             
 def main():
-    (X, Y) = load_optdigits_data(10)
-    (X, Y) = shuffle(X, Y)
-    network = Network(len(X[0]), [60], len(np.unique(Y)), sigmoid, sigmoid_derivative, 0.4, 0.0001, 5)
+    # (X, Y) = load_spambase_data(1000)
+    # (X, Y) = shuffle(X, Y)
+    # network = Network(len(X[0]), [60], len(np.unique(Y)), sigmoid, sigmoid_derivative, 0.0001, 0, 100)
 
-    X = normalize(X)
+    # # X = normalize(X)
 
-    N_Fold_NN((X, Y), network, load_optdigits_data.__name__)
+    # N_Fold_NN((X, Y), network, load_optdigits_data.__name__)
     # network.fit(X, Y)
     # accuracy = network.eval(X, Y)
     # print(accuracy)
     
         
     # test_DT()
-    # test_NN()
+    test_NN()
 
 if __name__ == "__main__":
     main()
