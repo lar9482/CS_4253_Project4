@@ -58,8 +58,8 @@ def run_NN(name, alpha, decay, node_option, X, Y, epochs,
 
 def test_NN():
 
-    epochs = 5
-    instances = 50
+    epochs = 100
+    instances = 1000
     domains = [load_EMG_data]
     for domain in domains:
 
