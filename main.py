@@ -14,7 +14,7 @@ from utils.graph import graph_DT_data
 def test_DT():
     # domains = [load_EMG_data, load_optdigits_data, load_spambase_data]
     # num_instances = [50, 100, 500, 1000, 2500, 3500, 4500]
-    domains = []
+    domains = [load_artificial_dataset]
     num_instances = [50, 100, 200, 400, 600, 800, 1000]
     info_gains = [Info_Gain.Entropy, Info_Gain.Gini]
 
@@ -111,8 +111,8 @@ def test_NN():
 
             
 def main():
-    # (X, Y) = load_spambase_data(1000)
-    # (X, Y) = shuffle(X, Y)
+    (X, Y) = load_artificial_dataset(250)
+    (X, Y) = shuffle(X, Y)
     # network = Network(len(X[0]), [60], len(np.unique(Y)), sigmoid, sigmoid_derivative, 0.0001, 0, 100)
 
     # # X = normalize(X)

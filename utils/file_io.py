@@ -9,20 +9,29 @@ def load_artificial_dataset(instances = 1000):
 
     read_items = 0
 
+    global_X = np.empty((1000, 2))
+    global_Y = np.empty((1000, 1))
+
     X = np.empty((instances, 2))
     Y = np.empty((instances, 1))
 
     with open(filePath, "r") as f:
         while True:
             content = f.readline().split(' ')
-            if content[0] == '' or read_items >= instances:
+            if content[0] == '':
                 break
             
-            X[read_items, :] = [float(content[1]), float(content[2])]
-            Y[read_items, :] = [float(content[0])]
+            global_X[read_items, :] = [float(content[1]), float(content[2])]
+            global_Y[read_items, :] = [float(content[0])]
 
             read_items += 1
         f.close()
+    
+    (global_X, global_Y) = shuffle(global_X, global_Y)
+
+    indices = np.random.randint(instances, size=(instances))
+    X = np.array([global_X[indice, :] for indice in indices])
+    Y = np.array([global_Y[indice, :] for indice in indices])
     
     return (X, Y)
 
