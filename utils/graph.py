@@ -27,7 +27,7 @@ def graph_DT_data(data, num_instances, domain):
     plt.xlabel('Number of Instances')
     plt.ylabel('Accuracy')
     
-    plt.xlim(0, 4600)
+    plt.xlim(0, 1005)
     plt.ylim(0, 1.05)
 
     filePath = os.path.join(sys.path[0], "Results", "DecisionTree", domain.__name__)
