@@ -1,4 +1,4 @@
-from utils.file_io import load_EMG_data, load_optdigits_data, load_spambase_data, save_NN_data
+from utils.file_io import load_EMG_data, load_optdigits_data, load_artificial_dataset, save_NN_data
 from utils.shuffle import shuffle
 
 from DecisionTree.DT import DT, Info_Gain
@@ -12,8 +12,10 @@ from multiprocessing import Process, Manager
 from utils.graph import graph_DT_data
 
 def test_DT():
-    domains = [load_EMG_data, load_optdigits_data, load_spambase_data]
-    num_instances = [50, 100, 500, 1000, 2500, 3500, 4500]
+    # domains = [load_EMG_data, load_optdigits_data, load_spambase_data]
+    # num_instances = [50, 100, 500, 1000, 2500, 3500, 4500]
+    domains = []
+    num_instances = [50, 100, 200, 400, 600, 800, 1000]
     info_gains = [Info_Gain.Entropy, Info_Gain.Gini]
 
     for domain in domains:
@@ -59,8 +61,8 @@ def run_NN(name, alpha, decay, node_option, X, Y, epochs,
 def test_NN():
 
     epochs = 100
-    instances = 1000
-    domains = [load_EMG_data]
+    instances = 200
+    domains = [load_EMG_data, load_optdigits_data]
     for domain in domains:
 
         (X, Y) = domain(instances)
@@ -69,12 +71,9 @@ def test_NN():
         if (domain.__name__ != 'load_spambase_data'):
             X = normalize(X)
 
-        node_options = [[int(len(X[0])), int(len(np.unique(Y)))], 
-                        [int(2*len(X[0])), int((len(X[0]) + len(np.unique(Y))) / 2), int(len(np.unique(Y)))],
-                        [int((len(X[0])))]]
-        learning_rates = [0.0001, 0.01, 0.5]
-
-        decay_rates = [0, 0.0001, 0.1]
+        node_options = [[7*int((len(X[0])))]]
+        learning_rates = [0.01, 0.25, 0.4, 0.5, 0.6]
+        decay_rates = [0.0001]
 
         
         with Manager() as manager:
@@ -124,8 +123,8 @@ def main():
     # print(accuracy)
     
         
-    # test_DT()
-    test_NN()
+    test_DT()
+    # test_NN()
 
 if __name__ == "__main__":
     main()

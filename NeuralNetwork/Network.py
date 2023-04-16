@@ -185,7 +185,7 @@ class Network(Model):
             
             #Reporting progress in the console.
             print(train_accuracy)
-            print('Process %s processing epoch %s' % (str(str(os.getpid())), str(epoch+1)))
+            print('Process %s processing epoch %s' % (str(self.alpha) + ' ' + str(self.decay), str(epoch+1)))
             print()
 
         return (train_acc, test_acc)

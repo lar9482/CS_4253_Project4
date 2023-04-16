@@ -4,6 +4,29 @@ import numpy as np
 import pandas as pd
 from utils.shuffle import shuffle
 
+def load_artificial_dataset(instances = 1000):
+    filePath = os.path.join(sys.path[0], "Datasets", "Artificial", "labeled-examples.txt")
+
+    read_items = 0
+
+    X = np.empty((instances, 2))
+    Y = np.empty((instances, 1))
+
+    with open(filePath, "r") as f:
+        while True:
+            content = f.readline().split(' ')
+            if content[0] == '' or read_items >= instances:
+                break
+            
+            X[read_items, :] = [float(content[1]), float(content[2])]
+            Y[read_items, :] = [float(content[0])]
+
+            read_items += 1
+        f.close()
+    
+    return (X, Y)
+
+
 def load_EMG_data(instances = 5000, folder = "sub2"):
     parent_folder = "EMG Physical Action Data Set"
     classifications = ["Elbowing.txt", "Frontkicking.txt", "Hamering.txt", "Headering.txt", "Kneeing.txt",
