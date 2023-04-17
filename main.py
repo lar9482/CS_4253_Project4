@@ -67,9 +67,9 @@ def run_NN(name, alpha, decay, node_option, domain, instances, epochs,
 def test_NN():
 
     epochs = 100
-    instances = 100
+    instances = 200
 
-    domains = [load_optdigits_data]
+    domains = [load_EMG_data, load_optdigits_data]
     for domain in domains:
 
         (X, Y) = domain(instances)
@@ -79,10 +79,9 @@ def test_NN():
             X = normalize(X)
 
 
-        node_options = [[3*int(len(X[0]))]
-                        ]
+        node_options = [[5*int(len(X[0]))]]
         
-        learning_rates = [0.1, 0.25, 0.5, 0.75, 1]
+        learning_rates = [0.1, 0.25, 0.5, 0.75]
         decay_rates = [0.0001]
 
         

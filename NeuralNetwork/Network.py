@@ -184,7 +184,8 @@ class Network(Model):
             test_acc.append(test_accuracy)
             
             #Reporting progress in the console.
-            print(train_accuracy)
+            print('Training: ' + str(train_accuracy))
+            print('Testing: ' + str(test_accuracy))
             print('Process %s processing epoch %s' % (str(self.alpha) + ' ' + str(self.decay), str(epoch+1)))
             print()
 
