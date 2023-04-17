@@ -35,9 +35,15 @@ def test_DT():
 
         graph_DT_data(data, num_instances, domain)
 
-def run_NN(name, alpha, decay, node_option, X, Y, epochs,
+def run_NN(name, alpha, decay, node_option, domain, instances, epochs,
            node_option_data,
            lock):
+    
+    (X, Y) = domain(instances)
+    (X, Y) = shuffle(X, Y)
+
+    if (domain.__name__ != 'load_artificial_dataset'):
+        X = normalize(X)
     
     network = Network(len(X[0]), node_option, len(np.unique(Y)),
                       sigmoid,
@@ -61,18 +67,22 @@ def run_NN(name, alpha, decay, node_option, X, Y, epochs,
 def test_NN():
 
     epochs = 100
-    instances = 200
-    domains = [load_EMG_data, load_optdigits_data]
+    instances = 100
+
+    domains = [load_optdigits_data]
     for domain in domains:
 
         (X, Y) = domain(instances)
         (X, Y) = shuffle(X, Y)
 
-        if (domain.__name__ != 'load_spambase_data'):
+        if (domain.__name__ != 'load_artificial_dataset'):
             X = normalize(X)
 
-        node_options = [[7*int((len(X[0])))]]
-        learning_rates = [0.01, 0.25, 0.4, 0.5, 0.6]
+
+        node_options = [[3*int(len(X[0]))]
+                        ]
+        
+        learning_rates = [0.1, 0.25, 0.5, 0.75, 1]
         decay_rates = [0.0001]
 
         
@@ -89,8 +99,8 @@ def test_NN():
                             alpha,
                             decay,
                             node_option,
-                            X,
-                            Y,
+                            domain,
+                            instances,
                             epochs,
                             node_option_data,
                             lock
@@ -111,20 +121,9 @@ def test_NN():
 
             
 def main():
-    (X, Y) = load_artificial_dataset(250)
-    (X, Y) = shuffle(X, Y)
-    # network = Network(len(X[0]), [60], len(np.unique(Y)), sigmoid, sigmoid_derivative, 0.0001, 0, 100)
-
-    # # X = normalize(X)
-
-    # N_Fold_NN((X, Y), network, load_optdigits_data.__name__)
-    # network.fit(X, Y)
-    # accuracy = network.eval(X, Y)
-    # print(accuracy)
     
-        
-    test_DT()
-    # test_NN()
+    # test_DT()
+    test_NN()
 
 if __name__ == "__main__":
     main()
