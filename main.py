@@ -67,9 +67,9 @@ def run_NN(name, alpha, decay, node_option, domain, instances, epochs,
 def test_NN():
 
     epochs = 100
-    instances = 200
+    instances = 100
 
-    domains = [load_EMG_data, load_optdigits_data]
+    domains = [load_optdigits_data, load_EMG_data]
     for domain in domains:
 
         (X, Y) = domain(instances)
