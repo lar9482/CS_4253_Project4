@@ -1,21 +1,22 @@
 from utils.file_io import load_EMG_data, load_optdigits_data, load_artificial_dataset, save_NN_data
+from utils.N_Fold import N_Fold, N_Fold_NN
+from utils.graph import graph_DT_data
 from utils.shuffle import shuffle
 
 from DecisionTree.DT import DT, Info_Gain
 from NeuralNetwork.Network import Network
-from NeuralNetwork.activation_functions import sigmoid, sigmoid_derivative, tanh, tanh_derivative
-import numpy as np
-from utils.N_Fold import N_Fold, N_Fold_NN
-from sklearn.preprocessing import normalize
+from NeuralNetwork.activation_functions import sigmoid, sigmoid_derivative
 
+import numpy as np
+from sklearn.preprocessing import normalize
 from multiprocessing import Process, Manager
-from utils.graph import graph_DT_data
+
 
 def test_DT():
     # domains = [load_EMG_data, load_optdigits_data, load_spambase_data]
-    # num_instances = [50, 100, 500, 1000, 2500, 3500, 4500]
-    domains = [load_artificial_dataset]
-    num_instances = [50, 100, 200, 400, 600, 800, 1000]
+    num_instances = [50, 100, 500, 1000, 2500, 3500, 4500]
+    domains = [load_EMG_data, load_optdigits_data]
+    # num_instances = [50, 100, 200, 400, 600, 800, 1000]
     info_gains = [Info_Gain.Entropy, Info_Gain.Gini]
 
     for domain in domains:
@@ -24,7 +25,8 @@ def test_DT():
             for instance in num_instances:
                 (X, Y) = domain(instance)
                 (X, Y) = shuffle(X, Y)
-
+                if (domain.__name__ != 'load_artificial_dataset'):
+                    X = normalize(X)
                 tree = DT(gain)
                 (train, test) = N_Fold((X, Y), tree)
 
@@ -69,7 +71,7 @@ def test_NN():
     epochs = 100
     instances = 100
 
-    domains = [load_optdigits_data, load_EMG_data]
+    domains = [load_artificial_dataset, load_optdigits_data, load_EMG_data]
     for domain in domains:
 
         (X, Y) = domain(instances)
@@ -120,9 +122,8 @@ def test_NN():
 
             
 def main():
-    
-    # test_DT()
-    test_NN()
+    test_DT()
+    # test_NN()
 
 if __name__ == "__main__":
     main()
